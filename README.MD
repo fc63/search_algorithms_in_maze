@@ -6,7 +6,7 @@
 
 ##  **Breadth First Search,** **Depth First Search,** **and** Uniform Cost Search** in **Python** using **Pygame**! 👓
 
-Forked from [maxontech](https://twitter.com/max_on_tech)
+Forked from [maxontech](https://github.com/MaxRohowsky)
 
 ## Table of contents
 
@@ -20,7 +20,7 @@ Forked from [maxontech](https://twitter.com/max_on_tech)
 
 ## Description
 
-This is a visual implementation of the **Breadth First Search,** **Depth First Search,** **and** *Uniform Cost Search** algorithm.
+This is a visual implementation of the **Breadth First Search,** **Depth First Search,** and **Uniform Cost Search** algorithm.
 
 You can manually draw walls, and the algorithm will find the path from the start to the end.
 
@@ -61,9 +61,3 @@ Requirements: You must have [Python](https://www.python.org/downloads/) installe
 - How to use Virtual Environments? [Explained Here](https://youtu.be/2P30W3TN4nI)
 - How to install PyCharm and Python? [Explained Here](https://youtu.be/XsL8JDkH-ec)
 - How to set PyCharm Config. and Interpreter? [Explained Here](https://youtu.be/OajNS-WHiUI)
-
-## Contact
-
-
-If you want to contact max. His message:
-'' Feel free to reach out to me [on Twitter](https://twitter.com/max_on_tech) if you have any questions or feedback! Hope you find this useful! ''
