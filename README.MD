@@ -16,7 +16,6 @@ Forked from [maxontech](https://github.com/MaxRohowsky)
 - [Controls](#controls)
 - [Libraries](#libraries)
 - [FAQ](#faq)
-- [Contact](#contact)
 
 ## Description
 
