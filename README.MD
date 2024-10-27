@@ -27,6 +27,7 @@ You can manually draw walls, and the algorithm will find the path from the start
 ## YouTube Videos
 
 Max Rohowsky's YouTube introductory video for the version I forked that only included breadth first search:
+
 [Python Pathfinding Vizualisation](https://www.youtube.com/watch?v=QNpUN8gBeLY)
 
 ## Installation
