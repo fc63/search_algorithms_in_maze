@@ -1,19 +1,12 @@
-# Breadth-First Search Algorithm in Python (with Pygame)
+# Visualization of Breadth-First Search, Depth-First Search, and Uniform Cost Search Algorithms in Python (With Pygame)
 
 ![Preview](/preview.png)
 <br>
 <br>
 
-##  **Breadth-First Search** in **Python** using **Pygame**! 👓
+##  **Breadth First Search,** **Depth First Search,** **and** Uniform Cost Search** in **Python** using **Pygame**! 👓
 
-**Show support:**
-<br>
-Star 🌟 the Project: ![GitHub stars](https://img.shields.io/github/stars/maxontech/breadth-first-search.svg?style=social&label=Star)
-<br>
-Follow 🤝 on GitHub: ![GitHub followers](https://img.shields.io/github/followers/maxontech.svg?style=social&label=Follow)
-<br>
-
-Made by [maxontech](https://twitter.com/max_on_tech)
+Forked from [maxontech](https://twitter.com/max_on_tech)
 
 ## Table of contents
 
@@ -27,12 +20,13 @@ Made by [maxontech](https://twitter.com/max_on_tech)
 
 ## Description
 
-This is a visual implementation of the **Breadth-First Search** algorithm.
+This is a visual implementation of the **Breadth First Search,** **Depth First Search,** **and** *Uniform Cost Search** algorithm.
 
 You can manually draw walls, and the algorithm will find the path from the start to the end.
 
 ## YouTube Videos
 
+Max Rohowsky's YouTube introductory video for the version I forked that only included breadth first search:
 [Python Pathfinding Vizualisation](https://www.youtube.com/watch?v=QNpUN8gBeLY)
 
 ## Installation
@@ -54,7 +48,9 @@ Requirements: You must have [Python](https://www.python.org/downloads/) installe
 ## Controls
 - Left mouse to draw walls
 - Right mouse to set target point
-- Space to start the algorithm
+- 1 to start the Breadth First Search
+- 2 to start the Depth First Search
+- 3 to start the Uniform First Search
 
 ## Libraries
 
@@ -68,4 +64,6 @@ Requirements: You must have [Python](https://www.python.org/downloads/) installe
 
 ## Contact
 
-Feel free to reach out to me [on Twitter](https://twitter.com/max_on_tech) if you have any questions or feedback! Hope you find this useful!
+
+If you want to contact max. His message:
+'' Feel free to reach out to me [on Twitter](https://twitter.com/max_on_tech) if you have any questions or feedback! Hope you find this useful! ''
