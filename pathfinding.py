@@ -34,7 +34,6 @@ grid = []
 queue = []
 path = []
 
-
 class Box:
     def __init__(self, i, j):
         self.x = i
@@ -67,7 +66,6 @@ class Box:
     def __lt__(self, other):
         return False
 
-
 pygame.font.init()
 font = pygame.font.SysFont("Calibri", 24)
 
@@ -99,7 +97,6 @@ for j in range(rows):
     grid[0][j].wall = True
     grid[columns - 1][j].wall = True
 
-
 def bfs(start_box, target_box):
     queue.append(start_box)
     while queue:
@@ -115,21 +112,35 @@ def bfs(start_box, target_box):
                 queue.append(neighbour)
         draw_grid()
 
-
 def dfs(start_box, target_box):
     stack = [start_box]
+    reset_after_dead_end = False
+
     while stack:
         pygame.time.delay(50)
+
+        if reset_after_dead_end:
+            stack = [start_box]
+            reset_after_dead_end = False
+
         current_box = stack.pop()
         current_box.visited = True
+
         if current_box == target_box:
             return reconstruct_path(start_box, current_box)
+
+        dead_end = True
+
         for neighbour in current_box.neighbours:
             if not neighbour.visited and not neighbour.wall:
                 neighbour.prior = current_box
                 stack.append(neighbour)
-        draw_grid()
+                dead_end = False
 
+        if dead_end:
+            reset_after_dead_end = True
+
+        draw_grid()
 
 def ucs(start_box, target_box):
     priority_queue = []
@@ -152,13 +163,11 @@ def ucs(start_box, target_box):
                     neighbour.queued = True
         draw_grid()
 
-
 def reconstruct_path(start_box, end_box):
     path.clear()
     while end_box.prior != start_box:
         path.append(end_box.prior)
         end_box = end_box.prior
-
 
 def draw_grid():
     window.fill((0, 0, 0))
@@ -185,7 +194,6 @@ def draw_grid():
             text_surface, (0, window_height - (len(instructions) - i) * 20 - 10)
         )
     pygame.display.flip()
-
 
 def main():
     start_box_set = False
@@ -239,6 +247,5 @@ def main():
                     selected_algorithm = None
 
         draw_grid()
-
 
 main()
