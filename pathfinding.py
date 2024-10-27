@@ -1,15 +1,32 @@
-from tkinter import messagebox, Tk
-import pygame
+import subprocess
 import sys
+import heapq
+import ctypes
 
-window_width = 800
-window_height = 800
+try:
+    import pygame
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pygame"])
+    import pygame
 
+pygame.init()
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+user32 = ctypes.windll.user32
+screen_width, screen_height = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+max_size = min(screen_width, screen_height) - 130
+pygame.display.set_caption("Kare  Maze")
+
+font = pygame.font.SysFont("Calibri", 23)
+input_box = pygame.Rect(50, 80, 180, 50)
+
+window_width = max_size
+window_height = max_size
 window = pygame.display.set_mode((window_width, window_height))
 
-columns = 50
-rows = 50
-
+columns = int(max_size / 17)
+rows = int(max_size / 17)
 box_width = window_width // columns
 box_height = window_height // rows
 
@@ -31,8 +48,11 @@ class Box:
         self.prior = None
 
     def draw(self, win, color):
-        pygame.draw.rect(win, color, (self.x * box_width,
-                         self.y * box_height, box_width-2, box_height-2))
+        pygame.draw.rect(
+            win,
+            color,
+            (self.x * box_width, self.y * box_height, box_width - 2, box_height - 2),
+        )
 
     def set_neighbours(self):
         if self.x > 0:
@@ -44,46 +64,142 @@ class Box:
         if self.y < rows - 1:
             self.neighbours.append(grid[self.x][self.y + 1])
 
+    def __lt__(self, other):
+        return False
 
-# Initialize Pygame's font module
+
 pygame.font.init()
 font = pygame.font.SysFont("Calibri", 24)
 
-
-# Create Grid
 for i in range(columns):
     arr = []
     for j in range(rows):
         arr.append(Box(i, j))
     grid.append(arr)
 
-# Set Neighbours
 for i in range(columns):
     for j in range(rows):
         grid[i][j].set_neighbours()
 
-# start_box = grid[0][0]
-# start_box.start = True
-# start_box.visited = True
-# queue.append(start_box)
+for i in range(columns):
+    arr = []
+    for j in range(rows):
+        arr.append(Box(i, j))
+    grid.append(arr)
+
+for i in range(columns):
+    for j in range(rows):
+        grid[i][j].set_neighbours()
+
+for i in range(columns):
+    grid[i][0].wall = True
+    grid[i][rows - 1].wall = True
+
+for j in range(rows):
+    grid[0][j].wall = True
+    grid[columns - 1][j].wall = True
+
+
+def bfs(start_box, target_box):
+    queue.append(start_box)
+    while queue:
+        pygame.time.delay(50)
+        current_box = queue.pop(0)
+        current_box.visited = True
+        if current_box == target_box:
+            return reconstruct_path(start_box, current_box)
+        for neighbour in current_box.neighbours:
+            if not neighbour.queued and not neighbour.wall:
+                neighbour.queued = True
+                neighbour.prior = current_box
+                queue.append(neighbour)
+        draw_grid()
+
+
+def dfs(start_box, target_box):
+    stack = [start_box]
+    while stack:
+        pygame.time.delay(50)
+        current_box = stack.pop()
+        current_box.visited = True
+        if current_box == target_box:
+            return reconstruct_path(start_box, current_box)
+        for neighbour in current_box.neighbours:
+            if not neighbour.visited and not neighbour.wall:
+                neighbour.prior = current_box
+                stack.append(neighbour)
+        draw_grid()
+
+
+def ucs(start_box, target_box):
+    priority_queue = []
+    heapq.heappush(priority_queue, (0, start_box))
+    start_box.queued = True
+    costs = {start_box: 0}
+    while priority_queue:
+        pygame.time.delay(5)
+        current_cost, current_box = heapq.heappop(priority_queue)
+        current_box.visited = True
+        if current_box == target_box:
+            return reconstruct_path(start_box, current_box)
+        for neighbour in current_box.neighbours:
+            if not neighbour.wall:
+                new_cost = current_cost + 1
+                if neighbour not in costs or new_cost < costs[neighbour]:
+                    costs[neighbour] = new_cost
+                    neighbour.prior = current_box
+                    heapq.heappush(priority_queue, (new_cost, neighbour))
+                    neighbour.queued = True
+        draw_grid()
+
+
+def reconstruct_path(start_box, end_box):
+    path.clear()
+    while end_box.prior != start_box:
+        path.append(end_box.prior)
+        end_box = end_box.prior
+
+
+def draw_grid():
+    window.fill((0, 0, 0))
+    for i in range(columns):
+        for j in range(rows):
+            box = grid[i][j]
+            box.draw(window, (100, 100, 100))
+            if box.queued:
+                box.draw(window, (0, 255, 0))
+            if box.visited:
+                box.draw(window, (0, 150, 0))
+            if box in path:
+                box.draw(window, (255, 255, 255))
+            if box.start:
+                box.draw(window, (200, 0, 0))
+            if box.wall:
+                box.draw(window, (10, 10, 10))
+            if box.target:
+                box.draw(window, (255, 191, 0))
+    instructions = ["Sol Tık: Başlangıç Noktası, Sağ Tık: Goal, 1: BFS, 2: DFS, 3: UCS",]
+    for i, instruction in enumerate(instructions):
+        text_surface = font.render(instruction, True, (255, 255, 255))
+        window.blit(
+            text_surface, (0, window_height - (len(instructions) - i) * 20 - 10)
+        )
+    pygame.display.flip()
 
 
 def main():
-    begin_search = False
-    target_box_set = False
-    searching = True
-    target_box = None
     start_box_set = False
+    target_box_set = False
+    target_box = None
+    selected_algorithm = None
 
     while True:
         for event in pygame.event.get():
-            # Quit Window
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            # Mouse Controls
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:  # Left mouse button click
+                if event.button == 1:
                     x, y = pygame.mouse.get_pos()
                     i = x // box_width
                     j = y // box_height
@@ -91,83 +207,38 @@ def main():
                         start_box = grid[i][j]
                         start_box.start = True
                         start_box.visited = True
-                        queue.append(start_box)
                         start_box_set = True
-
+                elif event.button == 3:
+                    x, y = pygame.mouse.get_pos()
+                    i = x // box_width
+                    j = y // box_height
+                    if not target_box_set:
+                        target_box = grid[i][j]
+                        target_box.target = True
+                        target_box_set = True
             elif event.type == pygame.MOUSEMOTION:
-                x = pygame.mouse.get_pos()[0]
-                y = pygame.mouse.get_pos()[1]
-                # Draw Wall
+                x, y = pygame.mouse.get_pos()
+                i = x // box_width
+                j = y // box_height
                 if event.buttons[0]:
-                    i = x // box_width
-                    j = y // box_height
                     grid[i][j].wall = True
-                # Set Target
-                if event.buttons[2] and not target_box_set:
-                    i = x // box_width
-                    j = y // box_height
-                    target_box = grid[i][j]
-                    target_box.target = True
-                    target_box_set = True
-            # Start Algorithm
-            if event.type == pygame.KEYDOWN and target_box_set:
-                begin_search = True
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    selected_algorithm = "bfs"
+                elif event.key == pygame.K_2:
+                    selected_algorithm = "dfs"
+                elif event.key == pygame.K_3:
+                    selected_algorithm = "ucs"
+                if selected_algorithm and start_box_set and target_box_set:
+                    if selected_algorithm == "bfs":
+                        bfs(start_box, target_box)
+                    elif selected_algorithm == "dfs":
+                        dfs(start_box, target_box)
+                    elif selected_algorithm == "ucs":
+                        ucs(start_box, target_box)
+                    selected_algorithm = None
 
-        if begin_search:
-            if len(queue) > 0 and searching:
-                current_box = queue.pop(0)
-                current_box.visited = True
-                if current_box == target_box:
-                    searching = False
-                    while current_box.prior != start_box:
-                        path.append(current_box.prior)
-                        current_box = current_box.prior
-                else:
-                    for neighbour in current_box.neighbours:
-                        if not neighbour.queued and not neighbour.wall:
-                            neighbour.queued = True
-                            neighbour.prior = current_box
-                            queue.append(neighbour)
-            else:
-                if searching:
-                    Tk().wm_withdraw()
-                    messagebox.showinfo("No Solution", "There is no solution!")
-                    searching = False
-
-        window.fill((0, 0, 0))
-
-        for i in range(columns):
-            for j in range(rows):
-                box = grid[i][j]
-                box.draw(window, (100, 100, 100))
-
-                if box.queued:
-                    box.draw(window, (200, 0, 0))
-                if box.visited:
-                    box.draw(window, (0, 200, 0))
-                if box in path:
-                    box.draw(window, (0, 0, 200))
-
-                if box.start:
-                    box.draw(window, (0, 200, 200))
-                if box.wall:
-                    box.draw(window, (10, 10, 10))
-                if box.target:
-                    box.draw(window, (200, 200, 0))
-
-                # Render instructions text
-            instructions = [
-                "Instructions:",
-                "1. Left click to set start",
-                "2. Left click and hold to draw walls",
-                "3. Right click to set target",
-                "4. Press SPACE to run"
-            ]
-            for i, instruction in enumerate(instructions):
-                text_surface = font.render(instruction, True, (255, 255, 255))
-                window.blit(text_surface, (0, window_height - (len(instructions) - i) * 20 - 10))
-
-        pygame.display.flip()
+        draw_grid()
 
 
 main()
