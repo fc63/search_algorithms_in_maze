@@ -50,7 +50,8 @@ Requirements: You must have [Python](https://www.python.org/downloads/) installe
 - Right mouse to set target point
 - 1 to start the Breadth First Search
 - 2 to start the Depth First Search
-- 3 to start the Uniform First Search
+- 3 to start the Uniform Cost Search
+- 4 to start the Uniform Cost Search algorithm by specifying a random cost for each box.
 
 ## Libraries
 
