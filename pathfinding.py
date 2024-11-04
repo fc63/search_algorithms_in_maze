@@ -2,6 +2,7 @@ import subprocess
 import sys
 import heapq
 import ctypes
+import random
 
 try:
     import pygame
@@ -16,7 +17,7 @@ BLACK = (0, 0, 0)
 user32 = ctypes.windll.user32
 screen_width, screen_height = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 max_size = min(screen_width, screen_height) - 130
-pygame.display.set_caption("Kare  Maze")
+pygame.display.set_caption("Kare Maze")
 
 font = pygame.font.SysFont("Calibri", 23)
 input_box = pygame.Rect(50, 80, 180, 50)
@@ -34,6 +35,8 @@ grid = []
 queue = []
 path = []
 
+delay_speed = 50
+
 class Box:
     def __init__(self, i, j):
         self.x = i
@@ -45,6 +48,7 @@ class Box:
         self.visited = False
         self.neighbours = []
         self.prior = None
+        self.cost = 1
 
     def draw(self, win, color):
         pygame.draw.rect(
@@ -80,16 +84,6 @@ for i in range(columns):
         grid[i][j].set_neighbours()
 
 for i in range(columns):
-    arr = []
-    for j in range(rows):
-        arr.append(Box(i, j))
-    grid.append(arr)
-
-for i in range(columns):
-    for j in range(rows):
-        grid[i][j].set_neighbours()
-
-for i in range(columns):
     grid[i][0].wall = True
     grid[i][rows - 1].wall = True
 
@@ -100,7 +94,7 @@ for j in range(rows):
 def bfs(start_box, target_box):
     queue.append(start_box)
     while queue:
-        pygame.time.delay(50)
+        pygame.time.delay(delay_speed)
         current_box = queue.pop(0)
         current_box.visited = True
         if current_box == target_box:
@@ -117,7 +111,7 @@ def dfs(start_box, target_box):
     reset_after_dead_end = False
 
     while stack:
-        pygame.time.delay(50)
+        pygame.time.delay(delay_speed)
 
         if reset_after_dead_end:
             stack = [start_box]
@@ -142,20 +136,20 @@ def dfs(start_box, target_box):
 
         draw_grid()
 
-def ucs(start_box, target_box):
+def ucs(start_box, target_box, random_cost=False):
     priority_queue = []
     heapq.heappush(priority_queue, (0, start_box))
     start_box.queued = True
     costs = {start_box: 0}
     while priority_queue:
-        pygame.time.delay(5)
+        pygame.time.delay(delay_speed)
         current_cost, current_box = heapq.heappop(priority_queue)
         current_box.visited = True
         if current_box == target_box:
             return reconstruct_path(start_box, current_box)
         for neighbour in current_box.neighbours:
             if not neighbour.wall:
-                new_cost = current_cost + 1
+                new_cost = current_cost + (neighbour.cost if random_cost else 1)
                 if neighbour not in costs or new_cost < costs[neighbour]:
                     costs[neighbour] = new_cost
                     neighbour.prior = current_box
@@ -187,13 +181,19 @@ def draw_grid():
                 box.draw(window, (10, 10, 10))
             if box.target:
                 box.draw(window, (255, 191, 0))
-    instructions = ["Sol Tık: Başlangıç Noktası, Sağ Tık: Goal, 1: BFS, 2: DFS, 3: UCS",]
+    instructions = ["Sol Tık: Başlangıç Noktası, Sağ Tık: Goal, 1: BFS, 2: DFS, 3: UCS, 4: UCS (Random Cost)",]
     for i, instruction in enumerate(instructions):
         text_surface = font.render(instruction, True, (255, 255, 255))
         window.blit(
             text_surface, (0, window_height - (len(instructions) - i) * 20 - 10)
         )
     pygame.display.flip()
+
+def set_random_costs():
+    for i in range(columns):
+        for j in range(rows):
+            if not grid[i][j].wall and not grid[i][j].start and not grid[i][j].target:
+                grid[i][j].cost = random.randint(1, 1000)
 
 def main():
     start_box_set = False
@@ -237,6 +237,9 @@ def main():
                     selected_algorithm = "dfs"
                 elif event.key == pygame.K_3:
                     selected_algorithm = "ucs"
+                elif event.key == pygame.K_4:
+                    set_random_costs()
+                    selected_algorithm = "ucs_random"
                 if selected_algorithm and start_box_set and target_box_set:
                     if selected_algorithm == "bfs":
                         bfs(start_box, target_box)
@@ -244,6 +247,8 @@ def main():
                         dfs(start_box, target_box)
                     elif selected_algorithm == "ucs":
                         ucs(start_box, target_box)
+                    elif selected_algorithm == "ucs_random":
+                        ucs(start_box, target_box, random_cost=True)
                     selected_algorithm = None
 
         draw_grid()
