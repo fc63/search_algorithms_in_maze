@@ -1,7 +1,6 @@
 import subprocess
 import sys
 import heapq
-import ctypes
 import random
 
 try:
@@ -14,8 +13,8 @@ pygame.init()
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-user32 = ctypes.windll.user32
-screen_width, screen_height = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+screen_info = pygame.display.Info()
+screen_width, screen_height = screen_info.current_w, screen_info.current_h
 max_size = min(screen_width, screen_height) - 130
 pygame.display.set_caption("Kare Maze")
 
@@ -71,7 +70,6 @@ class Box:
         return False
 
 pygame.font.init()
-font = pygame.font.SysFont("Calibri", 24)
 
 for i in range(columns):
     arr = []
