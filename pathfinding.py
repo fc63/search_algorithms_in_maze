@@ -249,6 +249,30 @@ def greedy_search(start_box, target_box):
 
         draw_grid()
 
+def greedy_search_euclidean(start_box, target_box):
+    priority_queue = []
+    start_box.heuristic = start_box.calculate_heuristic_euclidean(target_box)
+    heapq.heappush(priority_queue, (start_box.heuristic, start_box))
+    start_box.queued = True
+
+    while priority_queue:
+        pygame.time.delay(delay_speed)
+        current_f, current_box = heapq.heappop(priority_queue)
+        current_box.visited = True
+
+        if current_box == target_box:
+            return reconstruct_path(start_box, current_box)
+
+        for neighbour in current_box.neighbours:
+            if not neighbour.wall and not neighbour.visited:
+                neighbour.heuristic = neighbour.calculate_heuristic_euclidean(target_box)
+                neighbour.prior = current_box
+                heapq.heappush(priority_queue, (neighbour.heuristic, neighbour))
+                neighbour.queued = True
+
+        draw_grid()
+
+
 def reconstruct_path(start_box, end_box):
     path.clear()
     while end_box.prior != start_box:
@@ -273,7 +297,7 @@ def draw_grid():
                 box.draw(window, (10, 10, 10))
             if box.target:
                 box.draw(window, (255, 191, 0))
-    instructions = ["Sol Tık: Start, Sağ Tık: Goal, R: Random Cost, 1: BFS, 2: DFS, 3: UCS, 4: A* (M), 5: A* (E), 6: Greedy"]
+    instructions = ["Sol Tık: Start, Sağ Tık: Goal, R: Random Cost, 1: BFS, 2: DFS, 3: UCS, 4: A* (M), 5: A* (E), 6: G (M), 7: G (E)"]
     for i, instruction in enumerate(instructions):
         text_surface = font.render(instruction, True, (255, 255, 255))
         window.blit(
@@ -337,6 +361,8 @@ def main():
                     selected_algorithm = "a_star_euclidean"
                 elif event.key in [pygame.K_6, pygame.K_KP6]:
                     selected_algorithm = "greedy"
+                elif event.key in [pygame.K_7, pygame.K_KP7]:
+                    selected_algorithm = "greedy_euclidean"
                 if selected_algorithm and start_box_set and target_box_set:
                     if selected_algorithm == "bfs":
                         bfs(start_box, target_box)
@@ -350,6 +376,8 @@ def main():
                         a_star_euclidean(start_box, target_box)
                     elif selected_algorithm == "greedy":
                         greedy_search(start_box, target_box)
+                    elif selected_algorithm == "greedy_euclidean":
+                        greedy_search_euclidean(start_box, target_box)
                     selected_algorithm = None
 
         draw_grid()
