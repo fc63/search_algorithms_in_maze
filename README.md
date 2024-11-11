@@ -1,10 +1,10 @@
-# Visualization of Breadth-First Search, Depth-First Search, and Uniform Cost Search Algorithms in Python (With Pygame)
+# Visualization of Search Algorithms with Random Costs in a Maze (With Pygame)
 
 ![Preview](/preview.png)
 <br>
 <br>
 
-##  **Breadth First Search,** **Depth First Search,** **and** **Uniform Cost Search** in **Python** using **Pygame**! 👓
+##  **Breadth First Search,** **Depth First Search,** **Uniform Cost Search** **and** **A_star Search (Euclidean and Manhattan)** in **Python** using **Pygame**! 👓
 
 Forked from [maxontech](https://github.com/MaxRohowsky)
 
@@ -48,10 +48,12 @@ Requirements: You must have [Python](https://www.python.org/downloads/) installe
 ## Controls
 - Left mouse to draw walls
 - Right mouse to set target point
+- R to Determines Random Cost for each box
 - 1 to start the Breadth First Search
 - 2 to start the Depth First Search
 - 3 to start the Uniform Cost Search
-- 4 to start the Uniform Cost Search algorithm by specifying a random cost for each box.
+- 4 to start the A* Search with Manhattan Distance
+- 5 to start the A* Search with Euclidean Distance
 
 ## Libraries
 
