@@ -301,7 +301,7 @@ def draw_grid():
             if box.target:
                 box.draw(window, (255, 191, 0))
 
-    top_instructions = "C: Reset Grid, Q: Quit, M: Random Maze, V: Reset Path&Visited"
+    top_instructions = "C: Reset Grid, Q: Quit, M: Random Maze"
     top_text_surface = font.render(top_instructions, True, (255, 255, 255))
     window.blit(top_text_surface, (0, 0))
 
@@ -398,7 +398,7 @@ def main():
                     box = grid[i][j]
 
                     if event.button == 1:
-                        if i == 0 or i == columns - 1 or j == 0 or j == rows - 1:
+                        if i == 0 or j == 0:
                             continue
                         if not start_box_set and not box.wall:
                             start_box = box
@@ -446,8 +446,6 @@ def main():
                     sys.exit()
                 elif event.key == pygame.K_c:
                     reset_grid()
-                elif event.key == pygame.K_v:
-                    reset_grid_except_walls()
                 if event.key == pygame.K_r:
                     set_random_costs()
                 elif event.key == pygame.K_m:
@@ -468,18 +466,25 @@ def main():
                     selected_algorithm = "greedy_euclidean"
                 if selected_algorithm and start_box_set and target_box_set:
                     if selected_algorithm == "bfs":
+                        reset_grid_except_walls()
                         bfs(start_box, target_box)
                     elif selected_algorithm == "dfs":
+                        reset_grid_except_walls()
                         dfs(start_box, target_box)
                     elif selected_algorithm == "ucs":
+                        reset_grid_except_walls()
                         ucs(start_box, target_box)
                     elif selected_algorithm == "a_star":
+                        reset_grid_except_walls()
                         a_star(start_box, target_box)
                     elif selected_algorithm == "a_star_euclidean":
+                        reset_grid_except_walls()
                         a_star_euclidean(start_box, target_box)
                     elif selected_algorithm == "greedy":
+                        reset_grid_except_walls()
                         greedy_search(start_box, target_box)
                     elif selected_algorithm == "greedy_euclidean":
+                        reset_grid_except_walls()
                         greedy_search_euclidean(start_box, target_box)
                     selected_algorithm = None
 
