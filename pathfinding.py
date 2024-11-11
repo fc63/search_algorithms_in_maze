@@ -301,7 +301,7 @@ def draw_grid():
             if box.target:
                 box.draw(window, (255, 191, 0))
 
-    top_instructions = "C: Reset Grid, Q: Quit"
+    top_instructions = "C: Reset Grid, Q: Quit, M: Random Maze, V: Reset Path&Visited"
     top_text_surface = font.render(top_instructions, True, (255, 255, 255))
     window.blit(top_text_surface, (0, 0))
 
@@ -341,6 +341,41 @@ def reset_grid():
             grid[i][j].prior = None
             grid[i][j].cost = 1
             grid[i][j].heuristic = float('inf')
+    main()
+
+def reset_grid_except_walls():
+    global path, queue
+    path.clear()
+    queue.clear()
+
+    for i in range(columns):
+        for j in range(rows):
+            grid[i][j].queued = False
+            grid[i][j].visited = False
+            grid[i][j].prior = None
+            grid[i][j].heuristic = float('inf')
+
+def generate_maze():
+
+    for i in range(columns):
+        for j in range(rows):
+            grid[i][j].wall = True
+
+    def visit(cell_x, cell_y):
+        grid[cell_x][cell_y].wall = False
+        directions = [(0, -2), (0, 2), (-2, 0), (2, 0)]
+        random.shuffle(directions)
+
+        for dx, dy in directions:
+            nx, ny = cell_x + dx, cell_y + dy
+            if 1 <= nx < columns - 1 and 1 <= ny < rows - 1 and grid[nx][ny].wall:
+
+                grid[cell_x + dx // 2][cell_y + dy // 2].wall = False
+                visit(nx, ny)
+
+    start_x, start_y = 1, 1
+    visit(start_x, start_y)
+    draw_grid()
 
 def main():
     start_box_set = False
@@ -411,9 +446,12 @@ def main():
                     sys.exit()
                 elif event.key == pygame.K_c:
                     reset_grid()
-                    main()
+                elif event.key == pygame.K_v:
+                    reset_grid_except_walls()
                 if event.key == pygame.K_r:
                     set_random_costs()
+                elif event.key == pygame.K_m:
+                    generate_maze()
                 elif event.key in [pygame.K_1, pygame.K_KP1]:
                     selected_algorithm = "bfs"
                 elif event.key in [pygame.K_2, pygame.K_KP2]:

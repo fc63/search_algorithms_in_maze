@@ -58,6 +58,8 @@ Requirements: You must have [Python](https://www.python.org/downloads/) installe
 - 7 to start the Greedy Search with Euclidean Distance
 - q to exit
 - c to reset program
+- m to generate random maze
+- v to reset path & visited box
 
 ## Libraries
 
