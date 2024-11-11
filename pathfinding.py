@@ -16,7 +16,7 @@ BLACK = (0, 0, 0)
 
 screen_info = pygame.display.Info()
 screen_width, screen_height = screen_info.current_w, screen_info.current_h
-max_size = min(screen_width, screen_height) - 130
+max_size = min(screen_width, screen_height) - 100
 pygame.display.set_caption("Kare Maze")
 
 reference_size = 950
