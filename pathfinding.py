@@ -272,7 +272,6 @@ def greedy_search_euclidean(start_box, target_box):
 
         draw_grid()
 
-
 def reconstruct_path(start_box, end_box):
     path.clear()
     while end_box.prior != start_box:
@@ -316,6 +315,7 @@ def main():
     target_box_set = False
     target_box = None
     selected_algorithm = None
+    is_removing = False
 
     while True:
         for event in pygame.event.get():
@@ -323,29 +323,56 @@ def main():
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    x, y = pygame.mouse.get_pos()
-                    i = x // box_width
-                    j = y // box_height
-                    if not start_box_set and not grid[i][j].wall:
-                        start_box = grid[i][j]
-                        start_box.start = True
-                        start_box.visited = True
-                        start_box_set = True
-                elif event.button == 3:
-                    x, y = pygame.mouse.get_pos()
-                    i = x // box_width
-                    j = y // box_height
-                    if not target_box_set:
-                        target_box = grid[i][j]
-                        target_box.target = True
-                        target_box_set = True
+                x, y = pygame.mouse.get_pos()
+                i = x // box_width
+                j = y // box_height
+
+                if 0 <= i < columns and 0 <= j < rows:
+                    box = grid[i][j]
+
+                    if event.button == 1:  # Sol tık
+                        if i == 0 or i == columns - 1 or j == 0 or j == rows - 1:
+                            continue
+                        if not start_box_set and not box.wall:
+                            start_box = box
+                            start_box.start = True
+                            start_box.visited = True
+                            start_box_set = True
+                        else:
+                            if box.wall:
+                                is_removing = True
+                                box.wall = False
+                            else:
+                                is_removing = False
+                                if not box.start and not box.target:
+                                    box.wall = True
+                    elif event.button == 3:  # Sağ tık
+                        if not target_box_set and not box.start and not box.wall:
+                            target_box = box
+                            target_box.target = True
+                            target_box_set = True
+
             elif event.type == pygame.MOUSEMOTION:
                 x, y = pygame.mouse.get_pos()
                 i = x // box_width
                 j = y // box_height
-                if event.buttons[0]:
-                    grid[i][j].wall = True
+
+                if 0 <= i < columns and 0 <= j < rows:
+                    box = grid[i][j]
+
+                    if i == 0 or i == columns - 1 or j == 0 or j == rows - 1:
+                        continue
+                    if event.buttons[0]:  # Sol tık basılıyken
+                        if is_removing:
+                            if box.wall:
+                                box.wall = False
+                        else:
+                            if not box.wall and not box.start and not box.target:
+                                box.wall = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:  # Sol tık serbest bırakıldığında
+                    is_removing = False
+
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     set_random_costs()
