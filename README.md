@@ -56,6 +56,8 @@ Requirements: You must have [Python](https://www.python.org/downloads/) installe
 - 5 to start the A* Search with Euclidean Distance
 - 6 to start the Greedy Search with Manhattan Distance
 - 7 to start the Greedy Search with Euclidean Distance
+- q to exit
+- c to reset program
 
 ## Libraries
 

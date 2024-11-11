@@ -16,11 +16,18 @@ BLACK = (0, 0, 0)
 
 screen_info = pygame.display.Info()
 screen_width, screen_height = screen_info.current_w, screen_info.current_h
-max_size = min(screen_width, screen_height) - 130
+max_size = 500
 pygame.display.set_caption("Kare Maze")
 
-font = pygame.font.SysFont("Calibri", 23)
-small_font = pygame.font.SysFont("Calibri", 14)
+reference_size = 950
+reference_font_size = 19
+reference_small_font_size = 14
+
+font_size = int((max_size / reference_size) * reference_font_size)
+small_font_size = int((max_size / reference_size) * reference_small_font_size)
+
+font = pygame.font.SysFont("Calibri", font_size, bold=True)
+small_font = pygame.font.SysFont("Calibri", small_font_size)
 
 window_width = max_size
 window_height = max_size
@@ -98,11 +105,9 @@ for i in range(columns):
 
 for i in range(columns):
     grid[i][0].wall = True
-    grid[i][rows - 1].wall = True
 
 for j in range(rows):
     grid[0][j].wall = True
-    grid[columns - 1][j].wall = True
 
 def bfs(start_box, target_box):
     queue.append(start_box)
@@ -295,11 +300,16 @@ def draw_grid():
                 box.draw(window, (10, 10, 10))
             if box.target:
                 box.draw(window, (255, 191, 0))
+
+    top_instructions = "C: Reset Grid, Q: Quit"
+    top_text_surface = font.render(top_instructions, True, (255, 255, 255))
+    window.blit(top_text_surface, (0, 0))
+
     instructions = ["Sol Tık: Start, Sağ Tık: Goal, R: Random Cost, 1: BFS, 2: DFS, 3: UCS, 4: A* (M), 5: A* (E), 6: G (M), 7: G (E)"]
     for i, instruction in enumerate(instructions):
         text_surface = font.render(instruction, True, (255, 255, 255))
         window.blit(
-            text_surface, (0, window_height - (len(instructions) - i) * 20 - 10)
+            text_surface, (0, window_height - (len(instructions) - i) * (font_size))
         )
     pygame.display.flip()
 
@@ -308,6 +318,29 @@ def set_random_costs():
         for j in range(rows):
             if not grid[i][j].wall and not grid[i][j].start and not grid[i][j].target:
                 grid[i][j].cost = random.randint(1, 9)
+
+def reset_grid():
+    global start_box_set, target_box_set, start_box, target_box, path, queue
+    start_box_set = False
+    target_box_set = False
+    start_box = None
+    target_box = None
+    path.clear()
+    queue.clear()
+
+    for i in range(columns):
+        for j in range(rows):
+
+            if i == 0 or i == columns - 1 or j == 0 or j == rows - 1:
+                continue
+            grid[i][j].start = False
+            grid[i][j].wall = False
+            grid[i][j].target = False
+            grid[i][j].queued = False
+            grid[i][j].visited = False
+            grid[i][j].prior = None
+            grid[i][j].cost = 1
+            grid[i][j].heuristic = float('inf')
 
 def main():
     start_box_set = False
@@ -359,7 +392,7 @@ def main():
                 if 0 <= i < columns and 0 <= j < rows:
                     box = grid[i][j]
 
-                    if i == 0 or i == columns - 1 or j == 0 or j == rows - 1:
+                    if i == 0 or j == 0:
                         continue
                     if event.buttons[0]:
                         if is_removing:
@@ -373,6 +406,12 @@ def main():
                     is_removing = False
 
             elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    sys.exit()
+                elif event.key == pygame.K_c:
+                    reset_grid()
+                    main()
                 if event.key == pygame.K_r:
                     set_random_costs()
                 elif event.key in [pygame.K_1, pygame.K_KP1]:
