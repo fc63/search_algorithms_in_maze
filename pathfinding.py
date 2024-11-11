@@ -331,7 +331,7 @@ def reset_grid():
     for i in range(columns):
         for j in range(rows):
 
-            if i == 0 or i == columns - 1 or j == 0 or j == rows - 1:
+            if i == 0 or j == 0:
                 continue
             grid[i][j].start = False
             grid[i][j].wall = False
