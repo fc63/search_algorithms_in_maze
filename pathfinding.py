@@ -149,7 +149,6 @@ def dfs(start_box, target_box):
 
         draw_grid()
 
-
 def ucs(start_box, target_box):
     priority_queue = []
     heapq.heappush(priority_queue, (0, start_box))
@@ -330,7 +329,7 @@ def main():
                 if 0 <= i < columns and 0 <= j < rows:
                     box = grid[i][j]
 
-                    if event.button == 1:  # Sol tık
+                    if event.button == 1:
                         if i == 0 or i == columns - 1 or j == 0 or j == rows - 1:
                             continue
                         if not start_box_set and not box.wall:
@@ -346,7 +345,7 @@ def main():
                                 is_removing = False
                                 if not box.start and not box.target:
                                     box.wall = True
-                    elif event.button == 3:  # Sağ tık
+                    elif event.button == 3:
                         if not target_box_set and not box.start and not box.wall:
                             target_box = box
                             target_box.target = True
@@ -362,7 +361,7 @@ def main():
 
                     if i == 0 or i == columns - 1 or j == 0 or j == rows - 1:
                         continue
-                    if event.buttons[0]:  # Sol tık basılıyken
+                    if event.buttons[0]:
                         if is_removing:
                             if box.wall:
                                 box.wall = False
@@ -370,7 +369,7 @@ def main():
                             if not box.wall and not box.start and not box.target:
                                 box.wall = True
             elif event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:  # Sol tık serbest bırakıldığında
+                if event.button == 1:
                     is_removing = False
 
             elif event.type == pygame.KEYDOWN:
