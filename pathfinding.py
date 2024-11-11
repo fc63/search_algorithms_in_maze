@@ -2,6 +2,7 @@ import subprocess
 import sys
 import heapq
 import random
+import math
 
 try:
     import pygame
@@ -48,6 +49,7 @@ class Box:
         self.neighbours = []
         self.prior = None
         self.cost = 1
+        self.heuristic = float('inf')
 
     def draw(self, win, color):
         pygame.draw.rect(
@@ -65,6 +67,10 @@ class Box:
             self.neighbours.append(grid[self.x][self.y - 1])
         if self.y < rows - 1:
             self.neighbours.append(grid[self.x][self.y + 1])
+
+    def calculate_heuristic(self, target):
+        self.heuristic = abs(self.x - target.x) + abs(self.y - target.y)
+        return self.heuristic
 
     def __lt__(self, other):
         return False
@@ -193,6 +199,34 @@ def set_random_costs():
             if not grid[i][j].wall and not grid[i][j].start and not grid[i][j].target:
                 grid[i][j].cost = random.randint(1, 1000)
 
+def a_star(start_box, target_box):
+    priority_queue = []
+    start_box.heuristic = start_box.calculate_heuristic(target_box)
+    heapq.heappush(priority_queue, (0, start_box))
+    start_box.queued = True
+    g_scores = {start_box: 0}
+
+    while priority_queue:
+        pygame.time.delay(delay_speed)
+        current_f, current_box = heapq.heappop(priority_queue)
+        current_box.visited = True
+
+        if current_box == target_box:
+            return reconstruct_path(start_box, current_box)
+
+        for neighbour in current_box.neighbours:
+            if not neighbour.wall:
+                tentative_g = g_scores[current_box] + 1
+                if neighbour not in g_scores or tentative_g < g_scores[neighbour]:
+                    g_scores[neighbour] = tentative_g
+                    f_score = tentative_g + neighbour.calculate_heuristic(target_box)
+                    neighbour.prior = current_box
+                    heapq.heappush(priority_queue, (f_score, neighbour))
+                    neighbour.queued = True
+
+        draw_grid()
+
+
 def main():
     start_box_set = False
     target_box_set = False
@@ -238,6 +272,8 @@ def main():
                 elif event.key == pygame.K_4:
                     set_random_costs()
                     selected_algorithm = "ucs_random"
+                elif event.key == pygame.K_5:
+                    selected_algorithm = "a_star"
                 if selected_algorithm and start_box_set and target_box_set:
                     if selected_algorithm == "bfs":
                         bfs(start_box, target_box)
@@ -247,8 +283,11 @@ def main():
                         ucs(start_box, target_box)
                     elif selected_algorithm == "ucs_random":
                         ucs(start_box, target_box, random_cost=True)
+                    elif selected_algorithm == "a_star":
+                        a_star(start_box, target_box)
                     selected_algorithm = None
 
         draw_grid()
+
 
 main()
