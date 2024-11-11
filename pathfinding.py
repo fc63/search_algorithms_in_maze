@@ -250,7 +250,7 @@ def draw_grid():
                 box.draw(window, (10, 10, 10))
             if box.target:
                 box.draw(window, (255, 191, 0))
-    instructions = ["Sol Tık: Start, Sağ Tık: Goal, R: Random Cost, 1: BFS, 2: DFS, 3: UCS, 5: A* (M), 6: A* (E)"]
+    instructions = ["Sol Tık: Start, Sağ Tık: Goal, R: Random Cost, 1: BFS, 2: DFS, 3: UCS, 4: A* (M), 5: A* (E)"]
     for i, instruction in enumerate(instructions):
         text_surface = font.render(instruction, True, (255, 255, 255))
         window.blit(
@@ -302,15 +302,15 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     set_random_costs()
-                elif event.key == pygame.K_1:
+                elif event.key in [pygame.K_1, pygame.K_KP1]:
                     selected_algorithm = "bfs"
-                elif event.key == pygame.K_2:
+                elif event.key in [pygame.K_2, pygame.K_KP2]:
                     selected_algorithm = "dfs"
-                elif event.key == pygame.K_3:
+                elif event.key in [pygame.K_3, pygame.K_KP3]:
                     selected_algorithm = "ucs"
-                elif event.key == pygame.K_5:
+                elif event.key in [pygame.K_4, pygame.K_KP4]:
                     selected_algorithm = "a_star"
-                elif event.key == pygame.K_6:
+                elif event.key in [pygame.K_5, pygame.K_KP5]:
                     selected_algorithm = "a_star_euclidean"
                 if selected_algorithm and start_box_set and target_box_set:
                     if selected_algorithm == "bfs":
