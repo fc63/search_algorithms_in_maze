@@ -20,7 +20,7 @@ max_size = min(screen_width, screen_height) - 130
 pygame.display.set_caption("Kare Maze")
 
 font = pygame.font.SysFont("Calibri", 23)
-input_box = pygame.Rect(50, 80, 180, 50)
+small_font = pygame.font.SysFont("Calibri", 14)
 
 window_width = max_size
 window_height = max_size
@@ -35,7 +35,7 @@ grid = []
 queue = []
 path = []
 
-delay_speed = 50
+delay_speed = 1
 
 class Box:
     def __init__(self, i, j):
@@ -57,6 +57,11 @@ class Box:
             color,
             (self.x * box_width, self.y * box_height, box_width - 2, box_height - 2),
         )
+        if not self.wall:
+            cost_text = small_font.render(str(self.cost), True, WHITE)
+            text_rect = cost_text.get_rect(center=(self.x * box_width + box_width // 2,
+                                                    self.y * box_height + box_height // 2))
+            win.blit(cost_text, text_rect)
 
     def set_neighbours(self):
         if self.x > 0:
@@ -69,7 +74,11 @@ class Box:
             self.neighbours.append(grid[self.x][self.y + 1])
 
     def calculate_heuristic(self, target):
-        self.heuristic = abs(self.x - target.x) + abs(self.y - target.y)
+        self.heuristic = (abs(self.x - target.x) + abs(self.y - target.y)) + self.cost
+        return self.heuristic
+
+    def calculate_heuristic_euclidean(self, target):
+        self.heuristic = math.sqrt((self.x - target.x) ** 2 + (self.y - target.y) ** 2) + self.cost
         return self.heuristic
 
     def __lt__(self, other):
@@ -140,24 +149,80 @@ def dfs(start_box, target_box):
 
         draw_grid()
 
-def ucs(start_box, target_box, random_cost=False):
+
+def ucs(start_box, target_box):
     priority_queue = []
     heapq.heappush(priority_queue, (0, start_box))
     start_box.queued = True
     costs = {start_box: 0}
+
     while priority_queue:
         pygame.time.delay(delay_speed)
         current_cost, current_box = heapq.heappop(priority_queue)
         current_box.visited = True
+
         if current_box == target_box:
             return reconstruct_path(start_box, current_box)
+
         for neighbour in current_box.neighbours:
             if not neighbour.wall:
-                new_cost = current_cost + (neighbour.cost if random_cost else 1)
+                new_cost = current_cost + neighbour.cost
                 if neighbour not in costs or new_cost < costs[neighbour]:
                     costs[neighbour] = new_cost
                     neighbour.prior = current_box
                     heapq.heappush(priority_queue, (new_cost, neighbour))
+                    neighbour.queued = True
+        draw_grid()
+
+def a_star(start_box, target_box):
+    priority_queue = []
+    start_box.heuristic = start_box.calculate_heuristic(target_box)
+    heapq.heappush(priority_queue, (0, start_box))
+    start_box.queued = True
+    g_scores = {start_box: 0}
+
+    while priority_queue:
+        pygame.time.delay(delay_speed)
+        current_f, current_box = heapq.heappop(priority_queue)
+        current_box.visited = True
+
+        if current_box == target_box:
+            return reconstruct_path(start_box, current_box)
+
+        for neighbour in current_box.neighbours:
+            if not neighbour.wall:
+                tentative_g = g_scores[current_box] + neighbour.cost
+                if neighbour not in g_scores or tentative_g < g_scores[neighbour]:
+                    g_scores[neighbour] = tentative_g
+                    f_score = tentative_g + neighbour.calculate_heuristic(target_box)
+                    neighbour.prior = current_box
+                    heapq.heappush(priority_queue, (f_score, neighbour))
+                    neighbour.queued = True
+        draw_grid()
+
+def a_star_euclidean(start_box, target_box):
+    priority_queue = []
+    start_box.heuristic = start_box.calculate_heuristic_euclidean(target_box)
+    heapq.heappush(priority_queue, (0, start_box))
+    start_box.queued = True
+    g_scores = {start_box: 0}
+
+    while priority_queue:
+        pygame.time.delay(delay_speed)
+        current_f, current_box = heapq.heappop(priority_queue)
+        current_box.visited = True
+
+        if current_box == target_box:
+            return reconstruct_path(start_box, current_box)
+
+        for neighbour in current_box.neighbours:
+            if not neighbour.wall:
+                tentative_g = g_scores[current_box] + neighbour.cost
+                if neighbour not in g_scores or tentative_g < g_scores[neighbour]:
+                    g_scores[neighbour] = tentative_g
+                    f_score = tentative_g + neighbour.calculate_heuristic_euclidean(target_box)
+                    neighbour.prior = current_box
+                    heapq.heappush(priority_queue, (f_score, neighbour))
                     neighbour.queued = True
         draw_grid()
 
@@ -185,7 +250,7 @@ def draw_grid():
                 box.draw(window, (10, 10, 10))
             if box.target:
                 box.draw(window, (255, 191, 0))
-    instructions = ["Sol Tık: Başlangıç Noktası, Sağ Tık: Goal, 1: BFS, 2: DFS, 3: UCS, 4: UCS (Random Cost)",]
+    instructions = ["Sol Tık: Start, Sağ Tık: Goal, R: Random Cost, 1: BFS, 2: DFS, 3: UCS, 5: A* (M), 6: A* (E)"]
     for i, instruction in enumerate(instructions):
         text_surface = font.render(instruction, True, (255, 255, 255))
         window.blit(
@@ -197,35 +262,7 @@ def set_random_costs():
     for i in range(columns):
         for j in range(rows):
             if not grid[i][j].wall and not grid[i][j].start and not grid[i][j].target:
-                grid[i][j].cost = random.randint(1, 1000)
-
-def a_star(start_box, target_box):
-    priority_queue = []
-    start_box.heuristic = start_box.calculate_heuristic(target_box)
-    heapq.heappush(priority_queue, (0, start_box))
-    start_box.queued = True
-    g_scores = {start_box: 0}
-
-    while priority_queue:
-        pygame.time.delay(delay_speed)
-        current_f, current_box = heapq.heappop(priority_queue)
-        current_box.visited = True
-
-        if current_box == target_box:
-            return reconstruct_path(start_box, current_box)
-
-        for neighbour in current_box.neighbours:
-            if not neighbour.wall:
-                tentative_g = g_scores[current_box] + 1
-                if neighbour not in g_scores or tentative_g < g_scores[neighbour]:
-                    g_scores[neighbour] = tentative_g
-                    f_score = tentative_g + neighbour.calculate_heuristic(target_box)
-                    neighbour.prior = current_box
-                    heapq.heappush(priority_queue, (f_score, neighbour))
-                    neighbour.queued = True
-
-        draw_grid()
-
+                grid[i][j].cost = random.randint(1, 9)
 
 def main():
     start_box_set = False
@@ -263,17 +300,18 @@ def main():
                 if event.buttons[0]:
                     grid[i][j].wall = True
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
+                if event.key == pygame.K_r:
+                    set_random_costs()
+                elif event.key == pygame.K_1:
                     selected_algorithm = "bfs"
                 elif event.key == pygame.K_2:
                     selected_algorithm = "dfs"
                 elif event.key == pygame.K_3:
                     selected_algorithm = "ucs"
-                elif event.key == pygame.K_4:
-                    set_random_costs()
-                    selected_algorithm = "ucs_random"
                 elif event.key == pygame.K_5:
                     selected_algorithm = "a_star"
+                elif event.key == pygame.K_6:
+                    selected_algorithm = "a_star_euclidean"
                 if selected_algorithm and start_box_set and target_box_set:
                     if selected_algorithm == "bfs":
                         bfs(start_box, target_box)
@@ -281,13 +319,12 @@ def main():
                         dfs(start_box, target_box)
                     elif selected_algorithm == "ucs":
                         ucs(start_box, target_box)
-                    elif selected_algorithm == "ucs_random":
-                        ucs(start_box, target_box, random_cost=True)
                     elif selected_algorithm == "a_star":
                         a_star(start_box, target_box)
+                    elif selected_algorithm == "a_star_euclidean":
+                        a_star_euclidean(start_box, target_box)
                     selected_algorithm = None
 
         draw_grid()
-
 
 main()
