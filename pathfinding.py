@@ -115,13 +115,15 @@ def bfs(start_box, target_box):
         pygame.time.delay(delay_speed)
         current_box = queue.pop(0)
         current_box.visited = True
-        if current_box == target_box:
-            return reconstruct_path(start_box, current_box)
         for neighbour in current_box.neighbours:
             if not neighbour.queued and not neighbour.wall:
-                neighbour.queued = True
                 neighbour.prior = current_box
-                queue.append(neighbour)
+                if neighbour == target_box:
+                    return reconstruct_path(start_box, neighbour)
+                else:
+                    neighbour.queued = True
+                    queue.append(neighbour)
+
         draw_grid()
 
 def dfs(start_box, target_box):
