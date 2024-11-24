@@ -81,11 +81,11 @@ class Box:
             self.neighbours.append(grid[self.x][self.y + 1])
 
     def calculate_heuristic(self, target):
-        self.heuristic = (abs(self.x - target.x) + abs(self.y - target.y)) + self.cost
+        self.heuristic = (abs(self.x - target.x) + abs(self.y - target.y))
         return self.heuristic
 
     def calculate_heuristic_euclidean(self, target):
-        self.heuristic = math.sqrt((self.x - target.x) ** 2 + (self.y - target.y) ** 2) + self.cost
+        self.heuristic = math.sqrt((self.x - target.x) ** 2 + (self.y - target.y) ** 2)
         return self.heuristic
 
     def __lt__(self, other):
