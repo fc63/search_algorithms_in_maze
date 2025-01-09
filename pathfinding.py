@@ -278,6 +278,31 @@ def greedy_search_euclidean(start_box, target_box):
 
         draw_grid()
 
+def dijkstra(start_box, target_box):
+    priority_queue = []
+    heapq.heappush(priority_queue, (0, start_box))
+    start_box.queued = True
+    costs = {start_box: 0}
+
+    while priority_queue:
+        pygame.time.delay(delay_speed)
+        current_cost, current_box = heapq.heappop(priority_queue)
+        current_box.visited = True
+
+        if current_box == target_box:
+            return reconstruct_path(start_box, current_box)
+
+        for neighbour in current_box.neighbours:
+            if not neighbour.wall:
+                new_cost = current_cost + neighbour.cost
+                if neighbour not in costs or new_cost < costs[neighbour]:
+                    costs[neighbour] = new_cost
+                    neighbour.prior = current_box
+                    heapq.heappush(priority_queue, (new_cost, neighbour))
+                    neighbour.queued = True
+        draw_grid()
+
+
 def reconstruct_path(start_box, end_box):
     path.clear()
     while end_box.prior != start_box:
@@ -307,7 +332,7 @@ def draw_grid():
     top_text_surface = font.render(top_instructions, True, (255, 255, 255))
     window.blit(top_text_surface, (0, 0))
 
-    instructions = ["Sol Tık: Start, Sağ Tık: Goal, R: Random Cost, 1: BFS, 2: DFS, 3: UCS, 4: A* (M), 5: A* (E), 6: G (M), 7: G (E)"]
+    instructions = ["Sol Tık: Start, Sağ Tık: Goal, R: Random Cost, 1: BFS, 2: DFS, 3: UCS, 4: A* (M), 5: A* (E), 6: G (M), 7: G (E), 8: D"]
     for i, instruction in enumerate(instructions):
         text_surface = font.render(instruction, True, (255, 255, 255))
         window.blit(
@@ -466,6 +491,8 @@ def main():
                     selected_algorithm = "greedy"
                 elif event.key in [pygame.K_7, pygame.K_KP7]:
                     selected_algorithm = "greedy_euclidean"
+                elif event.key in [pygame.K_8, pygame.K_KP8]:
+                    selected_algorithm = "dijkstra"
                 if selected_algorithm and start_box_set and target_box_set:
                     if selected_algorithm == "bfs":
                         reset_grid_except_walls()
@@ -488,6 +515,9 @@ def main():
                     elif selected_algorithm == "greedy_euclidean":
                         reset_grid_except_walls()
                         greedy_search_euclidean(start_box, target_box)
+                    elif selected_algorithm == "dijkstra":
+                        reset_grid_except_walls()
+                        dijkstra(start_box, target_box)
                     selected_algorithm = None
 
         draw_grid()
