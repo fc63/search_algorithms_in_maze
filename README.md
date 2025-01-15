@@ -4,7 +4,7 @@
 <br>
 <br>
 
-##  **Breadth First Search,** **Depth First Search,** **Uniform Cost Search,** **A_star Search (Euclidean and Manhattan),** **Greedy Search(Euclidean and Manhattan)** **and** **Dijkstra's Search Algorithm** in **Python** using **Pygame**! 👓
+##  **Breadth First Search,** **Depth First Search,** **Uniform Cost Search,** **A_star Search (Euclidean and Manhattan),** **and** **Greedy Search(Euclidean and Manhattan)** in **Python** using **Pygame**! 👓
 
 Forked from [MaxRohowsky](https://github.com/MaxRohowsky)
 
@@ -19,7 +19,7 @@ Forked from [MaxRohowsky](https://github.com/MaxRohowsky)
 
 ## Description
 
-This is a visual implementation of the **Breadth First Search,** **Depth First Search,** **Uniform Cost Search** **A_star Search (Euclidean and Manhattan),** **Greedy Search(Euclidean and Manhattan)** **and** **Dijkstra's Search Algorithm** algorithm.
+This is a visual implementation of the **Breadth First Search,** **Depth First Search,** **Uniform Cost Search** **A_star Search (Euclidean and Manhattan),** **and** **Greedy Search(Euclidean and Manhattan)** algorithm.
 
 You can manually draw walls, and the algorithm will find the path from the start to the end.
 
@@ -56,7 +56,6 @@ Requirements: You must have [Python](https://www.python.org/downloads/) installe
 - 5 to start the A* Search with Euclidean Distance
 - 6 to start the Greedy Search with Manhattan Distance
 - 7 to start the Greedy Search with Euclidean Distance
-- 8 to Dijkstra's Search Algorithm
 - q to exit
 - c to reset program
 - m to generate random maze
